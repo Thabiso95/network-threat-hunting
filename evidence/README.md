@@ -84,3 +84,16 @@ python -m unittest discover -s tests -v
 The analysis writes structured findings to `output/alerts.csv`.
 Automated tests check the documented detection behaviour. Passing
 synthetic tests does not establish detection effectiveness on real traffic.
+
+### Cumulative transfer detection
+
+The script also evaluates the total bytes sent by each source/destination
+pair over a rolling 60-second window. The configured training threshold is
+2,500,000 bytes. The current dataset's three high-transfer events can meet
+this aggregate threshold as well as triggering individual-event alerts.
+These are separate detection signals and may overlap; they must not be
+treated as independent proof of malicious activity.
+
+The synthetic dataset does not yet represent a broad normal-traffic baseline.
+Tests use additional synthetic events to verify cumulative detection and
+non-detection scenarios.

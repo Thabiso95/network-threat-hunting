@@ -57,3 +57,16 @@ purpose, destination, and surrounding activity before escalating.
 
 The tests cover both sides of the 60-second port-scan boundary. All data
 remains synthetic; these tests do not validate the rule against live traffic.
+
+## Cumulative Transfer Detection
+
+The hunt also evaluates total bytes sent by the same source/destination
+pair within a rolling 60-second window. It creates a provisional finding
+when the total reaches 2,500,000 bytes, even if no individual event reaches
+the existing 900,000-byte high-transfer threshold.
+
+This is a training threshold, not a universal security standard. Repeated
+transfers can be legitimate. Analysts should validate the asset, application,
+business purpose, destination, and surrounding activity. The synthetic tests
+check an above-threshold total, a below-threshold total, and events spread
+outside the window. They do not validate effectiveness against live traffic.

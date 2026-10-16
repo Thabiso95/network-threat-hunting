@@ -7,6 +7,8 @@ OUTPUT_FILE = Path(__file__).resolve().parents[1] / "output" / "alerts.csv"
 PORT_THRESHOLD = 10
 WINDOW_SECONDS = 60
 TRANSFER_THRESHOLD = 900_000
+CUMULATIVE_TRANSFER_THRESHOLD = 2_500_000
+CUMULATIVE_WINDOW_SECONDS = 60
 
 
 def load_events(path=DATA_FILE):
@@ -108,20 +110,75 @@ def detect_high_transfers(events):
     ]]
 
 
-def build_alerts(events):
-    """Combine all detection results into one consistent alert table."""
-    scans = detect_port_scans(events)
-    transfers = detect_high_transfers(events)
+def detect_cumulative_transfers(events):
+    """Detect cumulative bytes sent within a rolling time window."""
     columns = [
         "finding_type", "source_ip", "destination_ip", "destination_port",
         "timestamp", "event_count", "bytes_sent", "severity", "reason",
         "recommended_actions"
     ]
+    findings = []
 
-    frames = [frame for frame in (scans, transfers) if not frame.empty]
+    for (source, destination), group in events.groupby(
+        ["source_ip", "destination_ip"]
+    ):
+        group = group.sort_values("timestamp").reset_index(drop=True)
+        left = 0
+        running_bytes = 0
+
+        for right in range(len(group)):
+            running_bytes += float(group.loc[right, "bytes_sent"])
+
+            while (
+                group.loc[right, "timestamp"] - group.loc[left, "timestamp"]
+            ).total_seconds() > CUMULATIVE_WINDOW_SECONDS:
+                running_bytes -= float(group.loc[left, "bytes_sent"])
+                left += 1
+
+            window = group.iloc[left:right + 1]
+            if running_bytes >= CUMULATIVE_TRANSFER_THRESHOLD:
+                findings.append({
+                    "finding_type": "Cumulative high-transfer activity",
+                    "source_ip": source,
+                    "destination_ip": destination,
+                    "destination_port": "",
+                    "timestamp": window["timestamp"].iloc[0].isoformat(),
+                    "event_count": len(window),
+                    "bytes_sent": int(running_bytes),
+                    "severity": "Medium - provisional",
+                    "reason": (
+                        f"{int(running_bytes):,} bytes sent across "
+                        f"{len(window)} events within "
+                        f"{CUMULATIVE_WINDOW_SECONDS} seconds"
+                    ),
+                    "recommended_actions": (
+                        "Review the application and asset owner; validate "
+                        "the transfer purpose; inspect destination and "
+                        "surrounding traffic; check whether activity is approved."
+                    ),
+                })
+                # One aggregate alert per source/destination pair per hunt.
+                break
+
+    return pd.DataFrame(findings, columns=columns)
+
+
+def build_alerts(events):
+    scans = detect_port_scans(events)
+    transfers = detect_high_transfers(events)
+    cumulative = detect_cumulative_transfers(events)
+
+    columns = [
+        "finding_type", "source_ip", "destination_ip", "destination_port",
+        "timestamp", "event_count", "bytes_sent", "severity", "reason",
+        "recommended_actions"
+    ]
+    frames = [
+        frame for frame in (scans, transfers, cumulative)
+        if not frame.empty
+    ]
     if not frames:
         return pd.DataFrame(columns=columns)
-
     return pd.concat(frames, ignore_index=True)[columns]
 
 

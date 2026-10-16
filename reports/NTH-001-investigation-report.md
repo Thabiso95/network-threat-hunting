@@ -151,3 +151,19 @@ or other approved transfers. Validation should include the asset owner,
 application, business purpose, destination, and surrounding connections.
 No alert alone confirms malicious activity. The dataset and test cases are
 synthetic; no live network or SIEM was queried.
+
+## Cumulative Transfer Detection
+
+A second transfer rule evaluates cumulative bytes sent by the same
+source/destination pair within a rolling 60-second window. The provisional
+training threshold is 2,500,000 bytes. This can identify a series of smaller
+transfers that would not individually meet the 900,000-byte event threshold.
+
+The rule emits one aggregate finding per source/destination pair per hunt.
+It may overlap with individual high-transfer alerts when the same activity
+meets both rules. This overlap is a known alert-deduplication consideration,
+not independent confirmation of malicious activity.
+
+Automated synthetic tests cover an above-threshold total, a below-threshold
+total, and events spread beyond the window. Live traffic and SIEM performance
+have not been evaluated.
