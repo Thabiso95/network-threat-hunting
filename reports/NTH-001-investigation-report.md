@@ -114,3 +114,22 @@ procedure if corroborating evidence indicates unauthorized scanning,
 unexpected access, sensitive data movement, or activity involving a critical
 asset. Record the evidence and reasoning. Do not automatically declare an
 incident based solely on these synthetic findings.
+
+## Structured Alert Export and Validation
+
+The detection script writes structured findings to `output/alerts.csv`.
+The export includes finding type, source IP, destination IP, destination
+port where applicable, timestamp, event count, bytes sent where applicable,
+provisional severity, reason, and recommended actions.
+
+Validation results:
+- Five automated unit tests passed.
+- The synthetic dataset contained 21 events.
+- Four findings were generated: one potential port-scan finding and three
+  high-transfer event findings.
+- CSV export was verified by reading the generated file back into pandas.
+
+The findings remain provisional. The high-transfer events do not by
+themselves establish data exfiltration, and the port-scan finding does
+not establish malicious intent. Further investigation and asset/context
+validation would be required. No live network or SIEM was queried.

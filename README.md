@@ -24,3 +24,20 @@ python src/hunt_network.py
 ```bash
 python -m unittest discover -s tests -v
 ```
+
+## Structured Alert Export
+
+The hunting script exports findings to `output/alerts.csv`. Each row
+includes the finding type, source and destination IPs, relevant event
+details, provisional severity, investigation reason, and recommended
+next actions.
+
+Run the hunt from the repository root with:
+
+```bash
+python src/hunt_network.py
+```
+
+The output is generated from synthetic training data. Alerts are
+investigation leads, not proof of malicious activity. No live network
+or SIEM was queried.

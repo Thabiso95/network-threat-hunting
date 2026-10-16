@@ -1,7 +1,14 @@
+import tempfile
 import unittest
+from pathlib import Path
 import pandas as pd
 
-from src.hunt_network import detect_port_scans, detect_high_transfers
+from src.hunt_network import (
+    detect_port_scans,
+    detect_high_transfers,
+    build_alerts,
+    export_alerts,
+)
 
 
 def make_events(ports, byte_values=None):
@@ -44,6 +51,20 @@ class NetworkHuntingTests(unittest.TestCase):
         events = make_events([8080], [50000])
         findings = detect_high_transfers(events)
         self.assertTrue(findings.empty)
+
+    def test_exports_alerts_to_csv(self):
+        events = make_events([8080], [950000])
+        alerts = build_alerts(events)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output = Path(temp_dir) / "alerts.csv"
+            export_alerts(alerts, output)
+            loaded = pd.read_csv(output)
+
+        self.assertEqual(len(loaded), 1)
+        self.assertEqual(loaded.iloc[0]["finding_type"], "High-transfer event")
+        self.assertIn("severity", loaded.columns)
+        self.assertIn("recommended_actions", loaded.columns)
 
 
 if __name__ == "__main__":
