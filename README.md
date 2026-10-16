@@ -70,3 +70,32 @@ transfers can be legitimate. Analysts should validate the asset, application,
 business purpose, destination, and surrounding activity. The synthetic tests
 check an above-threshold total, a below-threshold total, and events spread
 outside the window. They do not validate effectiveness against live traffic.
+
+## Alert Correlation and Case Management
+
+The correlation layer groups alerts sharing the same source and destination
+IP addresses when their timestamps fall within the configured correlation
+window (60 seconds by default). Alerts outside that window form separate
+cases. Case IDs are assigned in first-seen order for each analysis run.
+
+Outputs:
+- `output/alerts.csv`: original detection alerts.
+- `output/correlated-alerts.csv`: each alert with an alert ID, case ID,
+  and correlation explanation.
+- `output/cases.csv`: one summary row per investigation case.
+
+**Important distinction:** a network event is an observed connection or
+transfer; an alert is a detection generated from evidence; a case groups
+related alerts for investigation. One event may contribute to more than one
+alert. Therefore, alert counts are not equivalent to event counts.
+
+For this synthetic dataset, five alerts are grouped into two cases:
+one port-scan case and one high-transfer case. The transfer case contains
+three individual high-transfer alerts and one cumulative alert. These overlap
+and must not be counted as four separate transfers or summed as independent
+byte totals.
+
+Correlation is a triage aid, not proof of malicious activity. The grouping
+uses source/destination IPs and time only; it does not establish causality
+or asset identity. Severity remains provisional. No live network or SIEM
+was queried.

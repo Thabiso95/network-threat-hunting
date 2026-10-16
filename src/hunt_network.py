@@ -195,6 +195,12 @@ def main():
     alerts = build_alerts(events)
     output_path = export_alerts(alerts)
 
+    from correlate_alerts import correlate_alerts, export_correlated_results
+    correlated_alerts, cases = correlate_alerts(alerts)
+    correlated_path, cases_path = export_correlated_results(
+        correlated_alerts, cases
+    )
+
     print("=" * 64)
     print("NETWORK THREAT HUNTING — CASE NTH-001")
     print("=" * 64)
@@ -210,6 +216,9 @@ def main():
         ]].to_string(index=False))
 
     print(f"\nCSV alert export: {output_path}")
+    print(f"Correlated alert export: {correlated_path}")
+    print(f"Case summary export: {cases_path}")
+    print(f"Investigation cases created: {len(cases)}")
     print("Severity is provisional; these are investigation leads.")
     print("Synthetic dataset only; no live network or SIEM was queried.")
 

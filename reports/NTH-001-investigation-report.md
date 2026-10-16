@@ -167,3 +167,28 @@ not independent confirmation of malicious activity.
 Automated synthetic tests cover an above-threshold total, a below-threshold
 total, and events spread beyond the window. Live traffic and SIEM performance
 have not been evaluated.
+
+## Alert Correlation and Case Summary
+
+The five detection alerts were correlated into two investigation cases using
+the source IP, destination IP, and a 60-second correlation window.
+
+| Case | Source | Destination | Alerts | Summary |
+|---|---|---|---:|---|
+| NTH-001-CASE-001 | 192.0.2.50 | 198.51.100.60 | 1 | Potential port scan |
+| NTH-001-CASE-002 | 192.0.2.70 | 198.51.100.90 | 4 | Individual and cumulative high-transfer detections |
+
+The transfer case contains three individual high-transfer alerts and one
+cumulative high-transfer alert. These detections overlap: the cumulative
+alert summarises the same three transfer events represented by the
+individual alerts. The alert count must not be interpreted as a count of
+unique network events, and overlapping byte totals must not be added together.
+
+### Interpretation and Limitations
+
+A network event is an observed connection or transfer; an alert is a
+detection based on evidence; a case groups related alerts for investigation.
+Correlation supports triage but does not prove malicious intent or causality.
+This implementation groups by source/destination IP pair and time window;
+it does not perform asset enrichment, identity resolution, or live SIEM
+correlation. Severity remains provisional, and all evidence is synthetic.
