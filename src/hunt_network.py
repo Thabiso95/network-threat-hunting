@@ -42,7 +42,7 @@ def load_events(path=DATA_FILE):
 
 
 def detect_port_scans(events):
-    """Find source/destination pairs contacting 10+ ports within 5 minutes."""
+    """Identify source/destination pairs contacting 10+ ports in 5 minutes."""
     findings = []
 
     for (source, destination), group in events.groupby(
@@ -69,9 +69,15 @@ def detect_port_scans(events):
                     "ports": ", ".join(map(str, ports)),
                     "first_seen": window["timestamp"].iloc[0],
                     "last_seen": window["timestamp"].iloc[-1],
-                    "reason": (
-                        f"{len(ports)} distinct ports contacted "
-                        f"within {WINDOW_SECONDS} seconds"
+                    "severity": "Medium - provisional",
+                    "triage_reason": (
+                        "Rapid connections to multiple ports may indicate "
+                        "reconnaissance or port scanning."
+                    ),
+                    "recommended_actions": (
+                        "Review connection states and firewall logs; "
+                        "identify both assets; check for related alerts "
+                        "and subsequent successful connections."
                     ),
                 })
                 break
@@ -80,13 +86,20 @@ def detect_port_scans(events):
 
 
 def detect_high_transfers(events):
-    """Find individual events meeting the high-transfer threshold."""
+    """Identify individual events meeting the configured byte threshold."""
     findings = events.loc[
         events["bytes_sent"] >= TRANSFER_THRESHOLD
     ].copy()
 
-    findings["reason"] = (
-        f"Single event sent at least {TRANSFER_THRESHOLD:,} bytes"
+    findings["severity"] = "Medium - provisional"
+    findings["triage_reason"] = (
+        "An individual event exceeded the configured transfer threshold; "
+        "legitimate application activity remains possible."
+    )
+    findings["recommended_actions"] = (
+        "Identify the application and asset owner; compare with normal "
+        "traffic; review destination reputation and related connections; "
+        "check whether the transfer was expected and authorized."
     )
 
     return findings
@@ -98,16 +111,21 @@ def main():
     scans = detect_port_scans(events)
     transfers = detect_high_transfers(events)
 
-    print("=" * 60)
+    print("=" * 68)
     print("NETWORK THREAT HUNTING — CASE NTH-001")
-    print("=" * 60)
+    print("=" * 68)
     print(f"Events analysed: {len(events)}")
 
     print(f"\nPotential port-scan findings: {len(scans)}")
     if scans.empty:
         print("No potential port scans detected.")
     else:
-        print(scans.to_string(index=False))
+        columns = [
+            "source_ip", "destination_ip", "unique_ports", "ports",
+            "first_seen", "last_seen", "severity",
+            "triage_reason", "recommended_actions"
+        ]
+        print(scans[columns].to_string(index=False))
 
     print(f"\nHigh-transfer events: {len(transfers)}")
     if transfers.empty:
@@ -115,13 +133,16 @@ def main():
     else:
         columns = [
             "timestamp", "source_ip", "destination_ip",
-            "destination_port", "bytes_sent", "reason"
+            "destination_port", "bytes_sent", "severity",
+            "triage_reason", "recommended_actions"
         ]
         print(transfers[columns].to_string(index=False))
 
-    print("\nAssessment:")
-    print("These are investigation leads, not proof of malicious activity.")
-    print("The dataset is synthetic; no live network or SIEM was queried.")
+    print("\nAnalyst guidance:")
+    print("- Treat severity as provisional until contextual checks are complete.")
+    print("- Correlate events with asset, firewall, endpoint and identity data.")
+    print("- Document evidence before escalating or closing a finding.")
+    print("- Synthetic data only; no live network or SIEM was queried.")
 
 
 if __name__ == "__main__":

@@ -82,3 +82,35 @@ normal baselines, and correlate findings with endpoint and identity telemetry.
 The script identified one potential port-scan pattern and three high-transfer
 events in the synthetic dataset. All four automated tests passed. Further
 context would be required before classifying either pattern as malicious.
+
+## 8. Initial Severity and Triage
+
+Severity labels in the script are provisional training classifications,
+not confirmed incident ratings.
+
+### Potential port-scan pattern
+
+- **Initial priority:** Medium — provisional
+- **Reason:** Rapid contact with multiple destination ports may indicate
+  reconnaissance, but legitimate scanning and other explanations are possible.
+- **Recommended checks:** Review connection states and firewall records;
+  identify the source and destination assets; correlate with other alerts;
+  determine whether any subsequent connections succeeded.
+
+### High-transfer events
+
+- **Initial priority:** Medium — provisional
+- **Reason:** Three individual events exceeded the configured byte threshold.
+  Large transfers can be legitimate, and volume alone does not establish
+  data exfiltration.
+- **Recommended checks:** Identify the application and asset owner; compare
+  traffic against normal baselines; review the destination and surrounding
+  connections; confirm whether the transfer was expected and authorized.
+
+### Escalation considerations
+
+Consider escalating according to the organization's incident-response
+procedure if corroborating evidence indicates unauthorized scanning,
+unexpected access, sensitive data movement, or activity involving a critical
+asset. Record the evidence and reasoning. Do not automatically declare an
+incident based solely on these synthetic findings.
