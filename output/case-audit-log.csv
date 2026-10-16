@@ -1,0 +1,3 @@
+audit_id,timestamp,case_id,analyst,action,previous_status,new_status,previous_disposition,new_disposition,reason
+NTH-AUDIT-00001,2026-10-16T15:24:07+00:00,NTH-001-CASE-002,System,CASE_REGISTERED,,Open,,Pending,New prioritised case added to the case register.
+NTH-AUDIT-00002,2026-10-16T15:24:07+00:00,NTH-001-CASE-001,System,CASE_REGISTERED,,Open,,Pending,New prioritised case added to the case register.

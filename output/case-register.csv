@@ -1,0 +1,3 @@
+case_id,source_ip,destination_ip,priority_score,priority,status,disposition,evidence_reviewed,analyst_notes,created_at,updated_at
+NTH-001-CASE-002,192.0.2.70,198.51.100.90,69,High,Open,Pending,,,2026-10-16T15:24:07+00:00,2026-10-16T15:24:07+00:00
+NTH-001-CASE-001,192.0.2.50,198.51.100.60,30,Medium,Open,Pending,,,2026-10-16T15:24:07+00:00,2026-10-16T15:24:07+00:00

@@ -205,3 +205,16 @@ because it contains individual and cumulative transfer findings.
 Those detections overlap and must not be treated as four independent
 network events. The score is a triage aid, not proof of malicious
 activity. Further investigation is required; all evidence is synthetic.
+
+## Case Lifecycle and Analyst Disposition
+
+The case-management workflow maintains a register with lifecycle status,
+analyst disposition, evidence reviewed, notes, and timestamps. Updates
+require an explanation and append an audit entry recording previous
+and new status/disposition. New case registration is idempotent and
+does not overwrite existing analyst decisions.
+
+Closing requires a non-pending disposition, evidence reviewed, and
+analyst notes. The workflow does not automatically label a case benign
+or malicious. Its CSV audit log is a training aid, not tamper-proof
+storage. Findings remain provisional and the evidence is synthetic.

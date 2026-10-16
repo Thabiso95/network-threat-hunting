@@ -124,3 +124,28 @@ probability or proof of malicious activity. Overlapping alerts
 must not be treated as independent network events or summed as
 independent byte totals. The dataset is synthetic.
 No live SIEM or asset enrichment is claimed.
+
+## Case Lifecycle and Analyst Disposition
+
+Initialise the case register from the prioritised cases:
+
+    python src/manage_cases.py
+
+The script creates `output/case-register.csv` and
+`output/case-audit-log.csv`. Re-running initialisation adds only new
+case IDs and preserves existing analyst decisions.
+
+Update a case from the repository root, for example:
+
+    python src/manage_cases.py --case-id NTH-001-CASE-002 --analyst "SOC Analyst" --status Investigating --evidence-reviewed "Synthetic network-traffic.csv reviewed" --notes "Validating transfer pattern" --reason "Initial review started"
+
+Available statuses: Open, Investigating, Escalated, Closed.
+Available dispositions: Pending, Benign, Suspicious, Confirmed Malicious, Inconclusive.
+Closing a case requires a non-pending disposition, evidence reviewed,
+and analyst notes. Every update requires a reason and creates an audit
+entry with the previous and new status/disposition.
+
+This is a local training workflow, not a tamper-proof enterprise audit
+system. The CSV audit log can be edited by someone with file access.
+Disposition must reflect reviewed evidence; detections alone do not
+confirm malicious activity. All project evidence is synthetic.
