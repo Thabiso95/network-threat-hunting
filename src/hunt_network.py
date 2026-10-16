@@ -5,7 +5,7 @@ DATA_FILE = Path(__file__).resolve().parents[1] / "evidence" / "network-traffic.
 OUTPUT_FILE = Path(__file__).resolve().parents[1] / "output" / "alerts.csv"
 
 PORT_THRESHOLD = 10
-WINDOW_SECONDS = 300
+WINDOW_SECONDS = 60
 TRANSFER_THRESHOLD = 900_000
 
 

@@ -133,3 +133,21 @@ The findings remain provisional. The high-transfer events do not by
 themselves establish data exfiltration, and the port-scan finding does
 not establish malicious intent. Further investigation and asset/context
 validation would be required. No live network or SIEM was queried.
+
+## False-Positive Analysis and Detection Tuning
+
+The port-scan rolling window was reduced from 300 seconds to 60 seconds.
+The rule still requires at least 10 distinct destination ports for the same
+source/destination pair. Automated tests verify that ten ports spanning
+54 seconds trigger a finding, while ten ports spread across 63 seconds do
+not trigger a finding under the 60-second rule.
+
+This tuning reduces findings for slower-spread connections but may miss
+slower scans. The threshold should be adjusted to the environment and
+validated against representative baseline traffic before operational use.
+
+High-transfer alerts may represent legitimate backups, software distribution,
+or other approved transfers. Validation should include the asset owner,
+application, business purpose, destination, and surrounding connections.
+No alert alone confirms malicious activity. The dataset and test cases are
+synthetic; no live network or SIEM was queried.
