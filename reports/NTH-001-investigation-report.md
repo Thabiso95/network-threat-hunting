@@ -192,3 +192,16 @@ Correlation supports triage but does not prove malicious intent or causality.
 This implementation groups by source/destination IP pair and time window;
 it does not perform asset enrichment, identity resolution, or live SIEM
 correlation. Severity remains provisional, and all evidence is synthetic.
+
+## Case Prioritisation and Triage
+
+The case-prioritisation script applies an explainable training
+heuristic to the correlated case summaries. It assigns points for
+finding types, related-alert count, and disclosed overlapping
+detections, then provides a priority and suggested next steps.
+
+The high-transfer case ranks above the potential port-scan case
+because it contains individual and cumulative transfer findings.
+Those detections overlap and must not be treated as four independent
+network events. The score is a triage aid, not proof of malicious
+activity. Further investigation is required; all evidence is synthetic.

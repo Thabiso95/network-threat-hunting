@@ -99,3 +99,28 @@ Correlation is a triage aid, not proof of malicious activity. The grouping
 uses source/destination IPs and time only; it does not establish causality
 or asset identity. Severity remains provisional. No live network or SIEM
 was queried.
+
+## Case Prioritisation and Triage
+
+Run the triage workflow from the repository root:
+
+    python src/prioritize_cases.py
+
+The script reads `output/cases.csv` and writes
+`output/prioritized-cases.csv`, containing a score, priority,
+score rationale, and recommended investigation steps.
+
+Training scoring model:
+- Base score: +10.
+- Potential port scan: +20.
+- Individual high-transfer detection: +25.
+- Cumulative high-transfer detection: +20.
+- Related alerts: +3 per alert after the first, capped at +15.
+- Overlapping detections: +5, with overlap disclosed.
+
+Priority thresholds: High >= 45; Medium = 25-44; Low < 25.
+This is a transparent training heuristic, not a calibrated risk
+probability or proof of malicious activity. Overlapping alerts
+must not be treated as independent network events or summed as
+independent byte totals. The dataset is synthetic.
+No live SIEM or asset enrichment is claimed.
